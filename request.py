@@ -7,14 +7,7 @@ class Request(Header):
 
 		Header.__init__(self, code)
 
-		self.file = bytearray(filename.encode('utf-8'))
-
-		self.packet += self.file
-
+		self.packet.append(filename)
 		self.packet.append(0)
-
-		self.mode = bytearray(mode.encode('utf-8'))
-
-		self.packet += self.mode
-
+		self.packet.append(mode)
 		self.packet.append(0)
