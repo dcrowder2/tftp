@@ -9,12 +9,12 @@ class Request(Header):
 
 		self.file = bytearray(filename.encode('utf-8'))
 
-		self.head += self.file
+		self.packet += self.file
 
-		self.head.append(0)
+		self.packet.append(0)
 
 		self.mode = bytearray(mode.encode('utf-8'))
 
-		self.head += self.mode
+		self.packet += self.mode
 
-		self.head.append(0)
+		self.packet.append(0)
