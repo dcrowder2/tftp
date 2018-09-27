@@ -19,7 +19,7 @@ class Server(Net):
 		if args.v:
 			print("Server IP: " + str(self.sock.getsockname()) + "\nPort number: " + str(args.p) + "\nWaiting for connection")
 		else:
-			print("Ready to recieve")
+			print("Ready to receive")
 		while True:
 			connection_socket, address = self.sock.accept()
 
