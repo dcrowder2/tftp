@@ -1,6 +1,6 @@
-from datack import Datack
-from error import Error
-from request import Request
+from datack_packet import Datack
+from error_packet import Error
+from request_packet import Request
 
 
 class Packet:
