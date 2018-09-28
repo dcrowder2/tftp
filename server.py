@@ -1,6 +1,6 @@
 from net import Net
 from packet import Packet
-
+from os import path
 
 class Server(Net):
 
@@ -32,8 +32,13 @@ class Server(Net):
 			read_packet = Packet.read_packet(packet)
 
 			if read_packet[0]:
-				connection_socket.send(Packet.ack(0))
-				Net.receive_data(self, read_packet[1], connection_socket)
+				if path.exists(read_packet[1]):
+					return_packet = Packet.error(6)
+					connection_socket.send(return_packet)
+					connection_socket.close()
+				else:
+					connection_socket.send(Packet.ack(0))
+					Net.receive_data(self, read_packet[1], connection_socket)
 			else:
 				connection_socket.send(Packet.ack(0))
 				Net.send_data(self, read_packet[1], connection_socket)

@@ -50,12 +50,6 @@ class Net:
 			sock.send(send_packet)
 
 	def receive_data(self, filename, sock):
-		# if path.exists(filename):
-		# 	return_packet = Packet.error(6)
-		# 	sock.send(return_packet)
-		# 	sock.close()
-		# 	exit(3)
-		print(filename)
 		write_file = open('new' + filename, 'wb')
 		last_packet = False
 
