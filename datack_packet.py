@@ -17,7 +17,7 @@ class Datack(Header):
 			self.packet = Error(3)
 		else:
 			first_part = block_number >> 8
-			second_part = 255
+			second_part = block_number & 255
 			self.packet.append(first_part)
 			self.packet.append(second_part)
 

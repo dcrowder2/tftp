@@ -44,7 +44,7 @@ class Packet:
 			return_info.append(packet[index + 1 : index + last - 1])
 		elif op_code == 3:
 			# The block number is byte 3 and 4 of the packet, and should be added together to get the correct number
-			return_info.append((packet[2] << 8) + packet[3])
+			return_info.append((packet[2] << 8) | packet[3])
 			# Then the next part is the data chunk from the file
 			return_info.append(packet[4:])
 		elif op_code == 4:
