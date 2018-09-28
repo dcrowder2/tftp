@@ -8,9 +8,9 @@ class Request(Header):
 		Header.__init__(self, code)
 
 		encoded = filename.encode('utf-8')
-		self.packet += encoded
+		self.packet += bytearray(encoded)
 		self.packet.append(0)
 
 		encoded = mode.encode('utf-8')
-		self.packet += encoded
+		self.packet += bytearray(encoded)
 		self.packet.append(0)
