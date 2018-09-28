@@ -15,12 +15,12 @@ class Net:
 		self.parser.add_argument('-p', metavar='port number', type=int, help='The port for the server')
 		self.sock = socket(AF_INET, SOCK_STREAM)
 
-	def send_data(self, filename):
+	def send_data(self, filename, sock):
 		# Sending a file not found error and exiting
 		if not path.exists(filename):
 			send_packet = Packet.error(1)
-			self.sock.send(send_packet)
-			self.sock.close()
+			sock.send(send_packet)
+			sock.close()
 			exit(0)
 		# Loading the chunks of 512 bytes
 		file_chunks = FileReader.read(filename)
@@ -31,15 +31,15 @@ class Net:
 		for chunk in file_chunks:
 
 			send_packet = Packet.data(block_number, chunk)
-			self.sock.send(send_packet)
+			sock.send(send_packet)
 
-			receive_ack = Packet.read_packet(self.sock.recv(516))
+			receive_ack = Packet.read_packet(sock.recv(516))
 
 			# if the ack is not the block number sent, then a error packet is sent and the connection is closed
 			if receive_ack[0] != block_number:
 				send_packet = Packet.error(0, 'Incorrect acknowledgment, closing connection')
-				self.sock.send(send_packet)
-				self.sock.close()
+				sock.send(send_packet)
+				sock.close()
 				exit(0)
 
 			block_number += 1
@@ -47,34 +47,34 @@ class Net:
 		# Sending the last empty packet so the receiver knows it is finished if the last packet is 512
 		if len(file_chunks[last_chunk-1]) == 512:
 			send_packet = Packet.data(block_number, b'')
-			self.sock.send(send_packet)
-		self.sock.close()
+			sock.send(send_packet)
 
-	def receive_data(self, filename):
-		if path.exists(filename):
-			return_packet = Packet.error(6)
-			self.sock.send(return_packet)
-			self.sock.close()
-			exit(0)
-
+	def receive_data(self, filename, sock):
+		# if path.exists(filename):
+		# 	return_packet = Packet.error(6)
+		# 	sock.send(return_packet)
+		# 	sock.close()
+		# 	exit(3)
+		print(filename)
 		write_file = open('new' + filename, 'wb')
 		last_packet = False
 
 		while not last_packet:
-			receive_packet = self.sock.recv(516)
+			receive_packet = sock.recv(516)
 
 			data = Packet.read_packet(receive_packet)
 			# A check if the last packet is empty
 			if len(data[1]) == 0:
+				print('nah')
 				send_packet = Packet.ack(data[0])
-				self.sock.send(send_packet)
+				sock.send(send_packet)
 				break
 
 			write_data = data[1]
 			write_file.write(write_data)
 
 			send_packet = Packet.ack(data[0])
-			self.sock.send(send_packet)
+			sock.send(send_packet)
 
 			# If the last packet is not empty but less then 512 bytes
 			if len(data[1]) < 512:
