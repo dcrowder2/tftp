@@ -43,6 +43,8 @@ class Packet:
 		return_info = []
 		# A Read(1) or Write(2) Request
 		if op_code == 1 or op_code == 2:
+			# Add flag for if write then true, if read then false
+			return_info.append(op_code == 2)
 			# getting the file name
 			index = Packet.find_zero(packet[2:])
 			return_info.append(packet[2:index].decode('utf-8'))
@@ -60,6 +62,8 @@ class Packet:
 			return_info.append((packet[2] << 8) | packet[3])
 		# Error packet
 		else:
-			return_info.append(packet[3])
-			return_info.append(packet[4:-1].decode('utf-8'))
+			print("Error number " + str(packet[3]) + ": " + packet[4:-1].decode('utf-8'))
+			exit(0)
+			# return_info.append(packet[3])
+			# return_info.append(packet[4:-1].decode('utf-8'))
 		return return_info
