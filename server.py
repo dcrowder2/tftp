@@ -1,4 +1,5 @@
 from net import Net
+from packet import Packet
 
 
 class Server(Net):
@@ -26,10 +27,18 @@ class Server(Net):
 			if args.v:
 				print("Connection made with " + str(address))
 
-			data = connection_socket.recv(516)
+			packet = connection_socket.recv(516)
+
+			read_packet = Packet.read_packet(packet)
+
+			if read_packet[0]:
+				connection_socket.send(Packet.ack(0))
+				Net.receive_data(self, read_packet[1], connection_socket)
+			else:
+				connection_socket.send(Packet.ack(0))
+				Net.send_data(self, read_packet[1], connection_socket)
 
 			connection_socket.close()
-			break
 
 
 if __name__ == '__main__':
