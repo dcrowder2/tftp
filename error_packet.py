@@ -6,7 +6,7 @@ class Error(Header):
 	def __init__(self, err_code):
 		# Since this is just for errors, only one op code is available
 		Header.__init__(self, 5)
-
+		self.packet.append(0)
 		self.packet.append(err_code)
 		# Implementing the error message
 		# 0 Not defined, see error message (if any).
@@ -18,11 +18,18 @@ class Error(Header):
 		# 6 File already exists.
 		# 7 No such user.
 		if err_code == 1:
-			self.packet.append("File not found.")
+			message = 'File not found.'
+			self.packet.append(message.encode('utf-8'))
+			self.packet.append(0)
+		elif err_code == 3:
+			message = 'Disk full or allocation exceeded.'
+			self.packet.append(message.encode('utf-8'))
 			self.packet.append(0)
 		elif err_code == 5:
-			self.packet.append("Unknown transfer ID.")
+			message = "Unknown transfer ID."
+			self.packet.append(message.encode('utf-8'))
 			self.packet.append(0)
 		elif err_code == 6:
-			self.packet.append("File already exists.")
+			message = "File already exists."
+			self.packet.append(message.encode('utf-8'))
 			self.packet.append(0)
