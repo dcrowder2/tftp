@@ -57,5 +57,25 @@ class Net:
 			self.sock.close()
 			exit(0)
 
-		write_file = open(filename, 'wb')
+		write_file = open('new' + filename, 'wb')
+		last_packet = False
 
+		while not last_packet:
+			receive_packet = self.sock.recv(516)
+
+			data = Packet.read_packet(receive_packet)
+			# A check if the last packet is empty
+			if len(data[1]) == 0:
+				send_packet = Packet.ack(data[0])
+				self.sock.send(send_packet)
+				break
+
+			write_data = data[1]
+			write_file.write(write_data)
+
+			send_packet = Packet.ack(data[0])
+			self.sock.send(send_packet)
+
+			# If the last packet is not empty but less then 512 bytes
+			if len(data[1]) < 512:
+				last_packet = True
