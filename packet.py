@@ -64,6 +64,4 @@ class Packet:
 		else:
 			print("Error number " + str(packet[3]) + ": " + packet[4:-1].decode('utf-8'))
 			exit(0)
-			# return_info.append(packet[3])
-			# return_info.append(packet[4:-1].decode('utf-8'))
 		return return_info
