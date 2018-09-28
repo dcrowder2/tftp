@@ -3,7 +3,7 @@ from header import Header
 
 class Error(Header):
 
-	def __init__(self, err_code):
+	def __init__(self, err_code, in_message=''):
 		# Since this is just for errors, only one op code is available
 		Header.__init__(self, 5)
 		self.packet.append(0)
@@ -17,19 +17,21 @@ class Error(Header):
 		# 5 Unknown transfer ID.
 		# 6 File already exists.
 		# 7 No such user.
-		if err_code == 1:
+		if err_code == 0:
+			self.packet.append(in_message.encode('utf-8'))
+		elif err_code == 1:
 			message = 'File not found.'
-			self.packet.append(message.encode('utf-8'))
+			self.packet += message.encode('utf-8')
 			self.packet.append(0)
 		elif err_code == 3:
 			message = 'Disk full or allocation exceeded.'
-			self.packet.append(message.encode('utf-8'))
+			self.packet += message.encode('utf-8')
 			self.packet.append(0)
 		elif err_code == 5:
 			message = "Unknown transfer ID."
-			self.packet.append(message.encode('utf-8'))
+			self.packet += message.encode('utf-8')
 			self.packet.append(0)
 		elif err_code == 6:
 			message = "File already exists."
-			self.packet.append(message.encode('utf-8'))
+			self.packet += message.encode('utf-8')
 			self.packet.append(0)
