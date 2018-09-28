@@ -7,7 +7,10 @@ class Request(Header):
 
 		Header.__init__(self, code)
 
-		self.packet.append(filename)
+		encoded = filename.encode('utf-8')
+		self.packet += encoded
 		self.packet.append(0)
-		self.packet.append(mode)
+
+		encoded = mode.encode('utf-8')
+		self.packet += encoded
 		self.packet.append(0)
