@@ -1,4 +1,5 @@
 from net import Net
+from packet import Packet
 
 
 class Client(Net):
@@ -21,9 +22,23 @@ class Client(Net):
 
 		# Writing a file
 		if args.w:
-			self.file = open(args.f, "rb")
-			for line in self.file:
-				self.sock.send(line)
+			self.sock.send(Packet.request(args.f, 'netascii', True))
+			receive = self.sock.recv(516)
+			ack = Packet.read_packet(receive)
+			# Check for the correct ack for the request, if not terminate the connection via an empty data packet
+			if ack[0] == 0:
+				Net.send_data(self, args.f, self.sock)
+			else:
+				self.sock.close(Packet.data(0, b''))
+		else:
+			self.sock.send(Packet.request(args.f, 'netascii', False))
+			ack = Packet.read_packet(self.sock.recv(516))
+			# check for the correct ack for the request, if not terminate the connection via an empty data packet
+			if ack[0] == 0:
+				Net.receive_data(self, args.f, self.sock)
+			else:
+				self.sock.send(Packet.data(0, b''))
+		self.sock.close()
 
 
 if __name__ == '__main__':
