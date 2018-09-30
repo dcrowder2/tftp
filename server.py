@@ -36,7 +36,6 @@ class Server(Net):
 				if path.exists(read_packet[1]) or path.exists('new'+read_packet[1]):
 					return_packet = Packet.error(6)
 					connection_socket.send(return_packet)
-					connection_socket.close()
 				else:
 					connection_socket.send(Packet.ack(0))
 					Net.receive_data(self, read_packet[1], connection_socket)
@@ -50,10 +49,9 @@ class Server(Net):
 				if not path.exists(pathname):
 					send_packet = Packet.error(1)
 					connection_socket.send(send_packet)
-					connection_socket.close()
-
-				connection_socket.send(Packet.ack(0))
-				Net.send_data(self, pathname, connection_socket)
+				else:
+					connection_socket.send(Packet.ack(0))
+					Net.send_data(self, pathname, connection_socket)
 
 			connection_socket.close()
 
