@@ -16,12 +16,6 @@ class Net:
 		self.sock = socket(AF_INET, SOCK_STREAM)
 
 	def send_data(self, filename, sock):
-		# Sending a file not found error and exiting
-		if not path.exists(filename):
-			send_packet = Packet.error(1)
-			sock.send(send_packet)
-			sock.close()
-			exit(0)
 		# Loading the chunks of 512 bytes
 		file_chunks = FileReader.read(filename)
 		# the last chunk need to be less than 512, if not then another packet needs to be sent

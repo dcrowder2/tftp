@@ -32,7 +32,8 @@ class Server(Net):
 			read_packet = Packet.read_packet(packet)
 
 			if read_packet[0]:
-				if path.exists(read_packet[1]):
+				# Since a file added to the server will be preappended with 'new', this needs to be checked as well
+				if path.exists(read_packet[1]) or path.exists('new'+read_packet[1]):
 					return_packet = Packet.error(6)
 					connection_socket.send(return_packet)
 					connection_socket.close()
@@ -40,8 +41,19 @@ class Server(Net):
 					connection_socket.send(Packet.ack(0))
 					Net.receive_data(self, read_packet[1], connection_socket)
 			else:
+				if path.exists('new' + read_packet[1]):
+					pathname = 'new' + read_packet[1]
+				else:
+					pathname = read_packet[1]
+				# Sending a file not found error, this is redundant check if there is a 'new' + filename but if there
+				#  isn't one this one checks for the original name
+				if not path.exists(pathname):
+					send_packet = Packet.error(1)
+					connection_socket.send(send_packet)
+					connection_socket.close()
+
 				connection_socket.send(Packet.ack(0))
-				Net.send_data(self, read_packet[1], connection_socket)
+				Net.send_data(self, pathname, connection_socket)
 
 			connection_socket.close()
 
