@@ -30,6 +30,8 @@ class Packet:
 	@staticmethod
 	def data(block_number, data_line):
 		new_packet = Datack(3, block_number).packet
+		if new_packet[1] == 5:
+			Packet.read_packet(new_packet)
 		new_packet += bytearray(data_line)
 		return new_packet
 

@@ -9,6 +9,7 @@ import argparse
 from packet import Packet
 from file_reader import FileReader
 
+
 class Net:
 
 	def __init__(self):

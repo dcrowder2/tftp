@@ -18,7 +18,7 @@ class Datack(Header):
 			self.packet.append(block_number)
 		# This is the max number of blocks that can be sent, as there is only 2 bytes for the block number
 		elif block_number > 65534:
-			self.packet = Error(3)
+			self.packet = Error(3).packet
 		else:
 			first_part = block_number >> 8
 			second_part = block_number & 255
