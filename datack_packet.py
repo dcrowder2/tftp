@@ -1,3 +1,7 @@
+# Dakota Crowder
+# CSCE A365 Computer Networks
+# University of Alaska Anchorage
+# Trivial File Transport Protocol
 from header import Header
 from error_packet import Error
 

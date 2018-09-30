@@ -1,11 +1,13 @@
+# Dakota Crowder
+# CSCE A365 Computer Networks
+# University of Alaska Anchorage
+# Trivial File Transport Protocol
 from socket import SOCK_STREAM
 from socket import AF_INET
 from socket import socket
 import argparse
 from packet import Packet
 from file_reader import FileReader
-from os import path
-
 
 class Net:
 

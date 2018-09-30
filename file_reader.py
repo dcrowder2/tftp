@@ -1,4 +1,7 @@
-
+# Dakota Crowder
+# CSCE A365 Computer Networks
+# University of Alaska Anchorage
+# Trivial File Transport Protocol
 
 class FileReader:
 

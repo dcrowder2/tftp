@@ -1,3 +1,7 @@
+# Dakota Crowder
+# CSCE A365 Computer Networks
+# University of Alaska Anchorage
+# Trivial File Transport Protocol
 from net import Net
 from packet import Packet
 from os import path
