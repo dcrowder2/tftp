@@ -1,4 +1,7 @@
-# The parent to all packets, contains the op-code header
+import bitstring
+
+
+# The parent to all packets
 class Header:
 
 	def __init__(self, write):
@@ -18,21 +21,21 @@ class Header:
 		|           Checksum            |  Urgent Pointer (if URG set)  |
 		+-------------------------------+-------------------------------+
 		"""
-		self.source_port = bytearray()
-		self.destination_port = bytearray()
-		self.sequence_number = bytearray()
-		self.acknowledge_number = bytearray()
-		self.data_offset = bytearray(5)
-		self.reserved = bytearray([0, 0, 0, 0, 0, 0])
-		self.urgent_flag = 0
-		self.acknowledge_flag = 0
-		self.push_flag = 0
-		self.reset_flag = 0
-		self.synchronize_flag = 0
-		self.final_flag = 0
-		self.window_size = bytearray()
-		self.checksum = bytearray()
-		self.urgent_pointer = bytearray([0, 0, 0, 0])
+		self.source_port = bitstring.BitArray()
+		self.destination_port = bitstring.BitArray()
+		self.sequence_number = bitstring.BitArray()
+		self.acknowledge_number = bitstring.BitArray()
+		self.data_offset = bitstring.BitArray(5)
+		self.reserved = bitstring.BitArray('0b000000')
+		self.urgent_flag = bitstring.Bits(bin=0)
+		self.acknowledge_flag = bitstring.Bits(bin=0)
+		self.push_flag = bitstring.Bits(bin=0)
+		self.reset_flag = bitstring.Bits(bin=0)
+		self.synchronize_flag = bitstring.Bits(bin=0)
+		self.final_flag = bitstring.Bits(bin=0)
+		self.window_size = bitstring.BitArray()
+		self.checksum = bitstring.BitArray()
+		self.urgent_pointer = bitstring.BitArray('0b0000')
 
 	def combine(self):
 		complete = bytearray()
