@@ -56,7 +56,6 @@ class Net:
 			data = Packet.read_packet(receive_packet)
 			# A check if the last packet is empty
 			if len(data[1]) == 0:
-				print('nah')
 				send_packet = Packet.ack(data[0])
 				sock.send(send_packet)
 				break
@@ -70,3 +69,11 @@ class Net:
 			# If the last packet is not empty but less then 512 bytes
 			if len(data[1]) < 512:
 				last_packet = True
+
+	# The Sequence number can only go up to 32 bites in size, so it needs to wrap around
+	def up_sequence_number(self, addend):
+		if self.sequence_number + addend >= 4294967295:
+			self.sequence_number = 0
+			self.sequence_number += (self.sequence_number + addend) - 4294967295
+		else:
+			self.sequence_number += addend
