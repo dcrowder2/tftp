@@ -8,6 +8,7 @@ from socket import socket
 import argparse
 from packet import Packet
 from file_reader import FileReader
+import random
 
 
 class Net:
@@ -17,34 +18,19 @@ class Net:
 			description='An implementation of TFTP following RFC1350, by Dakota Crowder.')
 		self.parser.add_argument('-p', metavar='port number', type=int, help='The port for the server')
 		self.sock = socket(AF_INET, SOCK_STREAM)
+		# start with a random sequence number, in the range of 32 bits
+		self.sequence_number = random.randint(0, 4294967295)
 
-	def send_data(self, filename, sock):
-		# Loading the chunks of 512 bytes
-		file_chunks = FileReader.read(filename)
-		# the last chunk need to be less than 512, if not then another packet needs to be sent
-		last_chunk = len(file_chunks)
-		block_number = 1
-
+	def send_data(self, filename, WIN_SIZE):
+		file_reader = FileReader(filename)
+		# Pre-load file chunks with enough to fill the window at first
+		file_chunks = file_reader.get_chunk(WIN_SIZE)
+		# load in the first packets
+		window = []
 		for chunk in file_chunks:
-
-			send_packet = Packet.data(block_number, chunk)
-			sock.send(send_packet)
-
-			receive_ack = Packet.read_packet(sock.recv(516))
-
-			# if the ack is not the block number sent, then a error packet is sent and the connection is closed
-			if receive_ack[0] != block_number:
-				send_packet = Packet.error(0, 'Incorrect acknowledgment, closing connection')
-				sock.send(send_packet)
-				sock.close()
-				exit(0)
-
-			block_number += 1
-
-		# Sending the last empty packet so the receiver knows it is finished if the last packet is 512
-		if len(file_chunks[last_chunk-1]) == 512:
-			send_packet = Packet.data(block_number, b'')
-			sock.send(send_packet)
+			window.append(Packet.data(self.sequence_number, chunk))
+			self.up_sequence_number(len(chunk))
+			file_chunks.remove(chunk)
 
 	def receive_data(self, filename, sock):
 		write_file = open('new' + filename, 'wb')
