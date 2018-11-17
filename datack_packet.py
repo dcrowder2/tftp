@@ -17,7 +17,7 @@ class Datack(Header):
 
 		if in_code == 3:  # data packet
 			Header.__init__(self, sequence_number, s_port, d_port, ack_number)
-			self.data = data
+			self.data = bitstring.BitArray(data)
 
 	def combine(self):
 		complete = super(Datack, self).combine()

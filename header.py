@@ -118,6 +118,8 @@ class Header:
 			summation += (~all_words[start_of_word:end_of_word]).uint
 		bin_sum = bitstring.Bits(bin(summation))
 
+		if 
+
 		if len(bin_sum) > 16:
 			bin_sum = bitstring.Bits(bin(bin_sum[:(len(bin_sum)-16)].uint + bin_sum[(len(bin_sum)-16):]))
 

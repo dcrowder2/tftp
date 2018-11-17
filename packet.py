@@ -38,7 +38,7 @@ class Packet:
 
 	@staticmethod
 	def ack(sequence_number):
-		return Datack(4, sequence_number, b'')
+		return Datack(4, sequence_number)
 
 	@staticmethod
 	def kill():
