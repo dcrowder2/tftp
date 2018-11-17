@@ -28,11 +28,8 @@ class Packet:
 		return new_packet
 
 	@staticmethod
-	def data(block_number, data_line):
-		new_packet = Datack(3, block_number).packet
-		if new_packet[1] == 5:
-			Packet.read_packet(new_packet)
-		new_packet += bytearray(data_line)
+	def data(sequence_number, data_line):
+		new_packet = Datack(3, sequence_number, data_line)
 		return new_packet
 
 	@staticmethod
@@ -40,8 +37,8 @@ class Packet:
 		return Error(error_code, in_message).packet
 
 	@staticmethod
-	def ack(block_number):
-		return Datack(4, block_number).packet
+	def ack(sequence_number):
+		return Datack(4, sequence_number, b'')
 
 	@staticmethod
 	def kill():
