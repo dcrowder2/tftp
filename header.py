@@ -118,7 +118,9 @@ class Header:
 			summation += (~all_words[start_of_word:end_of_word]).uint
 		bin_sum = bitstring.Bits(bin(summation))
 
-		if len(bin_sum) > 16:
-			bin_sum = bitstring.Bits(bin(bin_sum[:(len(bin_sum)-16)].uint + bin_sum[(len(bin_sum)-16):]))
+		while len(bin_sum) > 16:
+			over_hang = bin_sum[:(len(bin_sum)-16)].uint
+			left_over = bin_sum[(len(bin_sum)-16):].uint
+			bin_sum = bitstring.Bits(bin(over_hang + left_over))
 
 		self.checksum = ~bin_sum
