@@ -35,6 +35,12 @@ class Server(Net):
 
 			read_packet = Packet.read_packet(packet)
 
+			# Kill packet received
+			if read_packet[0] == 'end':
+				connection_socket.close()
+				self.sock.close()
+				exit(0)
+
 			if read_packet[0]:
 				# Since a file added to the server will be preappended with 'new', this needs to be checked as well
 				if path.exists(read_packet[1]) or path.exists('new'+read_packet[1]):

@@ -44,6 +44,10 @@ class Packet:
 		return Datack(4, block_number).packet
 
 	@staticmethod
+	def kill():
+		return bytearray([0,9])
+
+	@staticmethod
 	def read_packet(packet):
 		op_code = packet[1]
 		return_info = []
@@ -66,6 +70,9 @@ class Packet:
 		# Ack packet
 		elif op_code == 4:
 			return_info.append((packet[2] << 8) | packet[3])
+		# Kill Packet
+		elif op_code == 9:
+			return_info.append('end')
 		# Error packet
 		else:
 			print("Error number " + str(packet[3]) + ": " + packet[4:-1].decode('utf-8'))

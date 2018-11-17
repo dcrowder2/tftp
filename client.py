@@ -18,9 +18,16 @@ class Client(Net):
 		self.parser.add_argument('-a', metavar='address', type=str, help='The ip address of the server')
 		self.parser.add_argument('-w', action='store_true', help='Flag for writing a file')
 		self.parser.add_argument('-r', action='store_true', help='Flag for reading a file')
+		self.parser.add_argument('-k', action='store_true', help='Flag for killing the server')
 
 		# parse the arguments
 		args = self.parser.parse_args()
+
+		# if you want to kill, open connection, and send kill
+		if args.k:
+			self.sock.connect((args.a, args.p))
+			self.sock.send(Packet.kill())
+			exit(0)
 
 		if not path.exists(args.f):
 			print("File not found, please enter a valid filename")
