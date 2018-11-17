@@ -111,14 +111,18 @@ class Header:
 		all_words = self.combine()
 		end_of_word = 16
 		summation = (~all_words[:end_of_word]).uint
-		# Since there is no data, there there is no non 16 bit words in the BitArray
+
 		for i in range((len(all_words)//16) - 1):
 			start_of_word = end_of_word
 			end_of_word += 16
 			summation += (~all_words[start_of_word:end_of_word]).uint
-		bin_sum = bitstring.Bits(bin(summation))
+		# If there is more bits that are a full word we need to add them as well
+		if len(all_words[end_of_word:]) > 0:
+			final_word = bitstring.BitArray(16 - len(all_words[end_of_word:]))
+			final_word.append(all_words[end_of_word:])
+			summation += (~final_word).uint
 
-		if 
+		bin_sum = bitstring.Bits(bin(summation))
 
 		if len(bin_sum) > 16:
 			bin_sum = bitstring.Bits(bin(bin_sum[:(len(bin_sum)-16)].uint + bin_sum[(len(bin_sum)-16):]))
