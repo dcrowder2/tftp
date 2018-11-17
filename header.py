@@ -46,28 +46,29 @@ class Header:
 			self.source_port.append(bin(s_port))
 		elif len_source == 16:
 			self.source_port = bitstring.BitArray(bin=bin(s_port))
-
+		# Same as source_port
 		if len_dest < 16:
 			self.destination_port = bitstring.BitArray(16 - len_dest)
 			self.destination_port.append(bin(s_port))
 		elif len_dest == 16:
 			self.destination_port = bitstring.BitArray(bin=bin(d_port))
-
+		# Same as source_port
 		if len_seq < 32:
 			self.sequence_number = bitstring.BitArray(32 - len_seq)
 			self.sequence_number.append(bin(seq_num))
 		elif len_seq == 32:
 			self.sequence_number = bitstring.BitArray(bin=bin(seq_num))
-
+		# Same as source_port
 		if len_ack < 32:
 			self.acknowledge_number = bitstring.BitArray(32 - len_ack)
 			self.acknowledge_number.append(bin(ack_num))
 		elif len_ack == 32:
 			self.acknowledge_number = bitstring.BitArray(bin=bin(ack_num))
 
+		# no options so always a offset of 5 words
 		self.data_offset = bitstring.BitArray('0b0101')
 		self.reserved = bitstring.BitArray(6)
-
+		# Urgent will be used as read/write bit
 		self.urgent_flag = bitstring.Bits(bin(write))
 
 		self.acknowledge_flag = bitstring.Bits(bin(ack))
@@ -77,13 +78,13 @@ class Header:
 		self.synchronize_flag = bitstring.Bits(bin(syn))
 
 		self.final_flag = bitstring.Bits(bin(fin))
-
+		# Same as source_port
 		if len_win < 16:
 			self.window_size = bitstring.BitArray(16 - len_win)
 			self.window_size.append(bin(win_size))
 		elif len_win == 16:
 			self.window_size = bitstring.BitArray(bin=bin(win_size))
-
+		# Checksum needs to be zeros for the calculation for checksum
 		self.checksum = bitstring.BitArray(16)
 		self.urgent_pointer = bitstring.BitArray(16)
 
@@ -107,6 +108,8 @@ class Header:
 		return complete
 
 	# To be overridden for any packet that has data (data, read, write, error)
+	# This uses the calculation described in RFC 793, which is the one's complement of the sum of the one's
+	# compliments of the 16 bit words in the packet, which is just splitting the packet up into 16 bit sections
 	def calc_checksum(self):
 		all_words = self.combine()
 		end_of_word = 16
