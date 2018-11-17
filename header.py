@@ -110,12 +110,12 @@ class Header:
 	def calc_checksum(self):
 		all_words = self.combine()
 		end_of_word = 16
-		summation = ~all_words[:end_of_word].uint
+		summation = (~all_words[:end_of_word]).uint
 		# Since there is no data, there there is no non 16 bit words in the BitArray
 		for i in range((len(all_words)//16) - 1):
 			start_of_word = end_of_word
 			end_of_word += 16
-			summation += ~all_words[start_of_word:end_of_word].uint
+			summation += (~all_words[start_of_word:end_of_word]).uint
 		bin_sum = bitstring.Bits(bin(summation))
 
 		if len(bin_sum) > 16:
