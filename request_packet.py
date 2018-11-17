@@ -3,18 +3,16 @@
 # University of Alaska Anchorage
 # Trivial File Transport Protocol
 from header import Header
+import bitstring
 
 
 class Request(Header):
 
-	def __init__(self, code, filename, mode):
+	def __init__(self, code, filename, seq_num, s_port, d_port):
 
-		Header.__init__(self, code)
+		if code == 1:
+			Header.__init__(self, seq_num, s_port, d_port, 0)
+		else:
+			Header.__init__(self, seq_num, s_port, d_port, 0, write=True)
 
-		encoded = filename.encode('utf-8')
-		self.packet += bytearray(encoded)
-		self.packet.append(0)
-
-		encoded = mode.encode('utf-8')
-		self.packet += bytearray(encoded)
-		self.packet.append(0)
+		self.data = bitstring.Bits(filename.encode('utf-8'))
