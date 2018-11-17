@@ -38,7 +38,7 @@ class Header:
 		self.urgent_pointer = bitstring.BitArray('0b0000')
 
 	def combine(self):
-		complete = bytearray()
+		complete = bitstring.BitArray()
 		complete += self.source_port
 		complete += self.destination_port
 		complete += self.sequence_number

@@ -2,6 +2,7 @@ from net import Net
 from packet import Packet
 from os import path
 
+
 class Server(Net):
 
 	def __init__(self):
