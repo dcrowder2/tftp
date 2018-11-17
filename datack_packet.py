@@ -10,10 +10,19 @@ import bitstring
 # This class encompasses the duties for a data packet and a ack packet
 class Datack(Header):
 
-	def __init__(self, in_code, block_number):
+	def __init__(self, in_code, sequence_number, ack_number, d_port, s_port, data=b''):
 
-		Header.__init__(self, in_code)
 		if in_code == 4:  # ack packet
-			self.acknowledge_flag = bitstring.Bits(bin=1)
-			self.acknowledge_number.append(bin(block_number))  # Block number will be data received for a ack packet
+			Header.__init__(self, sequence_number, s_port, d_port, ack_number, ack=True)
 
+		if in_code == 3:  # data packet
+			Header.__init__(self, sequence_number, s_port, d_port, ack_number)
+			self.data = data
+
+	def combine(self):
+		complete = super(Datack, self).combine()
+		complete.append(self.data)
+		return complete
+
+	def calc_checksum(self):
+		super(Datack, self).calc_checksum()
