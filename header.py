@@ -71,8 +71,8 @@ class Header:
 		self.urgent_flag = bitstring.Bits(bin(write))
 
 		self.acknowledge_flag = bitstring.Bits(bin(ack))
-		self.push_flag = bitstring.Bits(bin=0)
-		self.reset_flag = bitstring.Bits(bin=0)
+		self.push_flag = bitstring.Bits(bin(0))
+		self.reset_flag = bitstring.Bits(bin(0))
 
 		self.synchronize_flag = bitstring.Bits(bin(syn))
 
@@ -112,9 +112,9 @@ class Header:
 		end_of_word = 16
 		summation = ~all_words[:end_of_word].uint
 		# Since there is no data, there there is no non 16 bit words in the BitArray
-		for i in range(len(all_words)//16):
+		for i in range((len(all_words)//16) - 1):
 			start_of_word = end_of_word
-			end_of_word += end_of_word
+			end_of_word += 16
 			summation += ~all_words[start_of_word:end_of_word].uint
 		bin_sum = bitstring.Bits(bin(summation))
 
