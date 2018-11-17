@@ -2,6 +2,12 @@ import bitstring
 
 
 # The parent to all packets
+# Dakota Crowder
+# CSCE A365 Computer Networks
+# University of Alaska Anchorage
+# Trivial File Transport Protocol
+
+# The parent to all packets, contains the op-code header
 class Header:
 
 	def __init__(self, write):

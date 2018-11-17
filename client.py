@@ -1,5 +1,10 @@
+# Dakota Crowder
+# CSCE A365 Computer Networks
+# University of Alaska Anchorage
+# Trivial File Transport Protocol
 from net import Net
 from packet import Packet
+from os import path
 
 
 class Client(Net):
@@ -16,6 +21,10 @@ class Client(Net):
 
 		# parse the arguments
 		args = self.parser.parse_args()
+
+		if not path.exists(args.f):
+			print("File not found, please enter a valid filename")
+			exit(0)
 
 		# Connect to the server
 		self.sock.connect((args.a, args.p))
