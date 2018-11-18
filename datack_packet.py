@@ -9,10 +9,10 @@ import bitstring
 # This class encompasses the duties for a data packet and a ack packet
 class Datack(Header):
 
-	def __init__(self, in_code, sequence_number, ack_number, d_port, s_port, data=b'', fin=False):
+	def __init__(self, in_code, sequence_number, ack_number, d_port, s_port, win_size=0, data=b'', fin=False):
 
 		if in_code == 4:  # ack packet
-			Header.__init__(self, sequence_number, s_port, d_port, ack_number, ack=True)
+			Header.__init__(self, sequence_number, s_port, d_port, ack_number, ack=True, win_size=win_size)
 
 		if in_code == 3:  # data packet
 			Header.__init__(self, sequence_number, s_port, d_port, ack_number, fin=fin)
