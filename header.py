@@ -11,20 +11,20 @@ import bitstring
 class Header:
 
 	def __init__(self, seq_num, s_port, d_port, ack_num=0, win_size=0, write=False, syn=False, ack=False, fin=False):
-		"""                 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
-		0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+		"""                  1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
+		+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 		+-------------------------------+-------------------------------+
-		|          Source Port          |       Destination Port        |
+		|          Source Port          |       Destination Port        |0-31
 		+-------------------------------+-------------------------------+
-		|                       Sequence Number                         |
+		|                       Sequence Number                         |32-63
 		+---------------------------------------------------------------+
-		|                      Acknowledge Number                       |
+		|                      Acknowledge Number                       |64-95
 		+-------+-----+-+-+-+-+-+-+-+-+-+-------------------------------+
 		|  Data |           |U|A|P|R|S|F|                               |
-		| Offset|  Reserved |R|C|S|S|Y|I|          Window Size          |
+		| Offset|  Reserved |R|C|S|S|Y|I|          Window Size          |96-127
 		|       |           |G|K|H|T|N|N|                               |
 		+-------+-----+-+-+-+-+-+-+-+-+-+-------------------------------+
-		|           Checksum            |  Urgent Pointer (if URG set)  |
+		|           Checksum            |  Urgent Pointer (if URG set)  |128-159
 		+-------------------------------+-------------------------------+
 		"""
 		# Getting the length of all the numbers, because if it is less than 16 or 32 bits as determined from above
