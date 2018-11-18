@@ -31,7 +31,7 @@ class Packet:
 		return new_packet.combine()
 
 	@staticmethod
-	def data(sequence_number, data_line, s_port, d_port, ack_num, fin=False):
+	def data(sequence_number, data_line, s_port, d_port, ack_num=0, fin=False):
 		new_packet = Datack(3, sequence_number, ack_num, d_port, s_port, data_line, fin=fin)
 		new_packet.calc_checksum()
 		# Data packets are to be corrupted with a 5% probability, so we need to roll the die
@@ -46,7 +46,7 @@ class Packet:
 
 	@staticmethod
 	def ack(sequence_number, ack_number, d_port, s_port, win_size, syn=False):
-		return Datack(4, sequence_number, ack_number, d_port, s_port, win_size=win_size, syn=False)
+		return Datack(4, sequence_number, ack_number, d_port, s_port, win_size=win_size, syn=syn)
 
 	@staticmethod
 	def kill():
