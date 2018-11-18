@@ -45,8 +45,8 @@ class Packet:
 		return new_packet.combine()
 
 	@staticmethod
-	def ack(sequence_number, ack_number, d_port, s_port, win_size):
-		return Datack(4, sequence_number, ack_number, d_port, s_port, win_size=win_size)
+	def ack(sequence_number, ack_number, d_port, s_port, win_size, syn=False):
+		return Datack(4, sequence_number, ack_number, d_port, s_port, win_size=win_size, syn=False)
 
 	@staticmethod
 	def kill():
@@ -57,7 +57,9 @@ class Packet:
 		all_words = packet[:128]
 		# removing the checksum from the packet for the calculation of the checksum, since it wasn't in the original
 		# calculation for the checksum
-		all_words.append(Bits('0b0000000000000000'))
+		all_words.append(Bits('0b00000000000000000000000000000000'))
+		# and then all the data
+		all_words.append(packet[160:])
 		end_of_word = 16
 		summation = (~all_words[:end_of_word]).uint
 
@@ -88,19 +90,60 @@ class Packet:
 
 	@staticmethod
 	def read_packet(packet):
+		bit_packet = BitArray(packet)
+		# return array will be a string of what was read, and then the rest is pertinent information
+		return_array = []
 		# if the packet is less than the length of the header, then it has to be a kill packet, so send the end signal
-		if len(packet) < 20:
-			return "end"
+		if len(bit_packet) < 20:
+			return_array.append('end')
 
-		source_port = packet[:16].uint
-		dest_port = packet[16:32].uint
-		sequence_number = packet[32:64].uint
-		acknowledge_number = packet[64:96].uint
-		data_offset = packet[96:100].uint
-		write_flag = packet[106].bool
-		ack_flag = packet[107].bool
-		syn_flag = packet[110].bool
-		fin_flag = packet[111].bool
-		window_size = packet[112:128].uint
-		checksum = packet[128:144]
-		valid_checksum = Packet.check_checksum(checksum, packet)
+		source_port = bit_packet[:16].uint
+		dest_port = bit_packet[16:32].uint
+		sequence_number = bit_packet[32:64].uint
+		acknowledge_number = bit_packet[64:96].uint
+		data_offset = bit_packet[96:100].uint
+		write_flag = bit_packet[106].bool
+		ack_flag = bit_packet[107].bool
+		syn_flag = bit_packet[110].bool
+		fin_flag = bit_packet[111].bool
+		window_size = bit_packet[112:128].uint
+		checksum = bit_packet[128:144]
+		valid_checksum = Packet.check_checksum(checksum, bit_packet)
+		# the first thing, after the name of the packet, will be if the checksum is valid
+		return_array.append(valid_checksum)
+		# every packet read needs to return these three
+		return_array.append(source_port)
+		return_array.append(dest_port)
+		return_array.append(sequence_number)
+
+		if data_offset == 5:
+			data = bit_packet[160:]
+			if syn_flag:
+				if ack_flag:
+					return_array.insert(0, 'Ack Syn')
+					return_array.append(acknowledge_number)
+					return_array.append(window_size)
+				else:
+					return_array.insert(0, 'Syn')
+					return_array.append(write_flag)
+					return_array.append(data.bytes.decode('utf-8'))
+
+			elif ack_flag:
+				return_array.insert(0, 'Ack')
+				return_array.append(acknowledge_number)
+
+			elif fin_flag:
+				# checking for error
+				if data[:7].uint == 0 and data[7:16].uint == 511:
+						return_array.insert(0, 'Err')
+						return_array.append(data[16].uint)
+						return_array.append(data[17:].bytes.decode('utf-8'))
+				else:
+					return_array.insert(0, 'Fin')
+					return_array.append(data)
+			# data packet
+			else:
+				return_array.insert(0, 'Data')
+				return_array.append(data)
+
+			return return_array
