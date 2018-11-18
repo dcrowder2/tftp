@@ -6,7 +6,7 @@ from datack_packet import Datack
 from error_packet import Error
 from request_packet import Request
 import random
-from bitstring import Bits
+from bitstring import Bits, BitArray
 
 
 class Packet:
@@ -45,41 +45,62 @@ class Packet:
 		return new_packet.combine()
 
 	@staticmethod
-	def ack(sequence_number):
-		return Datack(4, sequence_number)
+	def ack(sequence_number, ack_number, d_port, s_port, win_size):
+		return Datack(4, sequence_number, ack_number, d_port, s_port, win_size=win_size)
 
 	@staticmethod
 	def kill():
 		return bytearray([0, 9])
 
 	@staticmethod
+	def check_checksum(checksum, packet):
+		all_words = packet[:128]
+		# removing the checksum from the packet for the calculation of the checksum, since it wasn't in the original
+		# calculation for the checksum
+		all_words.append(Bits('0b0000000000000000'))
+		end_of_word = 16
+		summation = (~all_words[:end_of_word]).uint
+
+		for i in range((len(all_words) // 16) - 1):
+			start_of_word = end_of_word
+			end_of_word += 16
+			summation += (~all_words[start_of_word:end_of_word]).uint
+		# If there is more bits that are a full word we need to add them as well
+		if len(all_words[end_of_word:]) > 0:
+			final_word = BitArray(16 - len(all_words[end_of_word:]))
+			final_word.append(all_words[end_of_word:])
+			summation += (~final_word).uint
+
+		bin_sum = Bits(bin(summation))
+
+		while len(bin_sum) > 16:
+			over_hang = bin_sum[:(len(bin_sum) - 16)].uint
+			left_over = bin_sum[(len(bin_sum) - 16):].uint
+			bin_sum = Bits(bin(over_hang + left_over))
+
+		if len(bin_sum) < 16:
+			temp_sum = BitArray(16 - len(bin_sum))
+			temp_sum.append(bin_sum)
+			bin_sum = temp_sum
+		calculated_checksum = ~bin_sum
+
+		return calculated_checksum == checksum
+
+	@staticmethod
 	def read_packet(packet):
-		op_code = packet[1]
-		return_info = []
-		# A Read(1) or Write(2) Request
-		if op_code == 1 or op_code == 2:
-			# Add flag for if write then true, if read then false
-			return_info.append(op_code == 2)
-			# getting the file name
-			index = Packet.find_zero(packet[2:])
-			return_info.append(packet[2:index].decode('utf-8'))
-			# getting the mode
-			last = Packet.find_zero(packet[(index + 1):])
-			return_info.append(packet[index + 1: index + last - 1].decode('utf-8'))
-		# Data packet
-		elif op_code == 3:
-			# The block number is byte 3 and 4 of the packet, and should be added together to get the correct number
-			return_info.append((packet[2] << 8) | packet[3])
-			# Then the next part is the data chunk from the file
-			return_info.append(packet[4:])
-		# Ack packet
-		elif op_code == 4:
-			return_info.append((packet[2] << 8) | packet[3])
-		# Kill Packet
-		elif op_code == 9:
-			return_info.append('end')
-		# Error packet
-		else:
-			print("Error number " + str(packet[3]) + ": " + packet[4:-1].decode('utf-8'))
-			exit(0)
-		return return_info
+		# if the packet is less than the length of the header, then it has to be a kill packet, so send the end signal
+		if len(packet) < 20:
+			return "end"
+
+		source_port = packet[:16].uint
+		dest_port = packet[16:32].uint
+		sequence_number = packet[32:64].uint
+		acknowledge_number = packet[64:96].uint
+		data_offset = packet[96:100].uint
+		write_flag = packet[106].bool
+		ack_flag = packet[107].bool
+		syn_flag = packet[110].bool
+		fin_flag = packet[111].bool
+		window_size = packet[112:128].uint
+		checksum = packet[128:144]
+		valid_checksum = Packet.check_checksum(checksum, packet)
