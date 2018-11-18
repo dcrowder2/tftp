@@ -131,6 +131,7 @@ class Header:
 			over_hang = bin_sum[:(len(bin_sum)-16)].uint
 			left_over = bin_sum[(len(bin_sum)-16):].uint
 			bin_sum = bitstring.Bits(bin(over_hang + left_over))
+
 		if len(bin_sum) < 16:
 			temp_sum = bitstring.BitArray(16 - len(bin_sum))
 			temp_sum.append(bin_sum)
