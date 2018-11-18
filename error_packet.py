@@ -30,6 +30,8 @@ class Error(Header):
 			message = "Unknown transfer ID."
 		elif err_code == 6:
 			message = "File already exists."
+		else:
+			message = "Unknown Error"
 		self.error = bitstring.BitArray(message.encode('utf-8'))
 
 	def combine(self):
