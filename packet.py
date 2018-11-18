@@ -118,32 +118,35 @@ class Packet:
 
 		if data_offset == 5:
 			data = bit_packet[160:]
-			if syn_flag:
-				if ack_flag:
-					return_array.insert(0, 'Ack Syn')
-					return_array.append(acknowledge_number)
-					return_array.append(window_size)
-				else:
-					return_array.insert(0, 'Syn')
-					return_array.append(write_flag)
-					return_array.append(data.bytes.decode('utf-8'))
+		else:
+			data = bit_packet[192:]
 
-			elif ack_flag:
-				return_array.insert(0, 'Ack')
+		if syn_flag:
+			if ack_flag:
+				return_array.insert(0, 'Ack Syn')
 				return_array.append(acknowledge_number)
-
-			elif fin_flag:
-				# checking for error
-				if data[:7].uint == 0 and data[7:16].uint == 511:
-						return_array.insert(0, 'Err')
-						return_array.append(data[16].uint)
-						return_array.append(data[17:].bytes.decode('utf-8'))
-				else:
-					return_array.insert(0, 'Fin')
-					return_array.append(data)
-			# data packet
+				return_array.append(window_size)
 			else:
-				return_array.insert(0, 'Data')
-				return_array.append(data)
+				return_array.insert(0, 'Syn')
+				return_array.append(write_flag)
+				return_array.append(data.bytes.decode('utf-8'))
 
-			return return_array
+		elif ack_flag:
+			return_array.insert(0, 'Ack')
+			return_array.append(acknowledge_number)
+
+		elif fin_flag:
+			# checking for error
+			if data[:7].uint == 0 and data[7:16].uint == 511:
+					return_array.insert(0, 'Err')
+					return_array.append(data[16].uint)
+					return_array.append(data[17:].bytes.decode('utf-8'))
+			else:
+				return_array.insert(0, 'Fin')
+				return_array.append(data)
+		# data packet
+		else:
+			return_array.insert(0, 'Data')
+			return_array.append(data)
+
+		return return_array
