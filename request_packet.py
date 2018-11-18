@@ -16,3 +16,11 @@ class Request(Header):
 			Header.__init__(self, seq_num, s_port, d_port, 0, write=True)
 
 		self.data = bitstring.Bits(filename.encode('utf-8'))
+
+	def combine(self):
+		complete = super(Request, self).combine()
+		complete.append(self.data)
+		return complete
+
+	def calc_checksum(self):
+		super(Request, self).calc_checksum()
