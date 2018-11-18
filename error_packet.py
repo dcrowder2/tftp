@@ -40,7 +40,7 @@ class Error(Header):
 		# to signify an error packet, I start the data with 7 0s and 9 1s which shouldn't match any other data
 		complete.append(bitstring.BitArray(7))
 		complete.append(bitstring.Bits('0b111111111'))
-		complete.append(self.error_code)
+		complete.append(bin(self.error_code))
 		complete.append(self.error)
 		return complete
 
