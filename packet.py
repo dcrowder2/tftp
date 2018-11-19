@@ -15,6 +15,7 @@ class Packet:
 	def corrupt(packet):
 		d100_roll = random.randint(0, 100)
 		if d100_roll <= 5:
+			print("Packet corrupted, changing checksum")
 			# To corrupt the checksum I set it to the binary representation for the word no, which is 16 bits,
 			# and while it is possible for the checksum to be this, it is very slim chances so it should be fine
 			packet.checksum = Bits(b'No')
