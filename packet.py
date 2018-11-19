@@ -96,6 +96,7 @@ class Packet:
 		# if the packet is less than the length of the header, then it has to be a kill packet, so send the end signal
 		if len(bit_packet) < 20:
 			return_array.append('end')
+			return return_array
 
 		source_port = bit_packet[:16].uint
 		dest_port = bit_packet[16:32].uint
@@ -120,7 +121,7 @@ class Packet:
 		if syn_flag:
 			if ack_flag:
 				return_array.insert(0, 'Ack Syn')
-				return_array.append(source_port)
+				return_array.append(sequence_number)
 				return_array.append(dest_port)
 				return_array.append(acknowledge_number)
 				return_array.append(window_size)
