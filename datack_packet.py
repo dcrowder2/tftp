@@ -13,6 +13,7 @@ class Datack(Header):
 
 		if in_code == 4:  # ack packet
 			Header.__init__(self, seq_number, s_port, d_port, ack_number, ack=True, win_size=win_size, syn=syn)
+			self.data = data
 
 		if in_code == 3:  # data packet
 			Header.__init__(self, seq_number, s_port, d_port, ack_number, fin=fin)

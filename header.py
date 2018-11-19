@@ -49,7 +49,7 @@ class Header:
 		# Same as source_port
 		if len_dest < 16:
 			self.destination_port = bitstring.BitArray(16 - len_dest)
-			self.destination_port.append(bin(s_port))
+			self.destination_port.append(bin(d_port))
 		elif len_dest == 16:
 			self.destination_port = bitstring.BitArray(bin=bin(d_port))
 		# Same as source_port
@@ -108,7 +108,7 @@ class Header:
 		return complete
 
 	def binary_combine(self):
-		return Header.combine(self).tobytes()
+		return self.combine().tobytes()
 
 	# To be overridden for any packet that has data (data, read, write, error)
 	# This uses the calculation described in RFC 793, which is the one's complement of the sum of the one's

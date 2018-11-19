@@ -5,7 +5,7 @@
 from net import Net
 from packet import Packet
 from os import path
-from socket import socket
+import socket
 import random
 
 
@@ -26,6 +26,7 @@ class Server(Net):
 
 		print("Server IP: " + str(self.sock.getsockname()) + "\nPort number: " + str(args.p) + "\nWaiting for connection")
 		while True:
+			self.sock.settimeout(None)
 			message, address = self.sock.recvfrom(1472)
 			decoded_message = Packet.read_packet(message)
 			# Kill packet received
@@ -42,7 +43,7 @@ class Server(Net):
 					filename = decoded_message[4]
 					self.sock.sendto(Packet.ack(self.seq_number, ack, address[1], self.port, self.win_size,
 					                            syn=True).binary_combine(), address)
-					self.sock.settimeout(.5)
+					self.sock.settimeout(2)
 					try:
 						message, address = self.sock.recvfrom(1472)
 						decoded_message = Packet.read_packet(message)

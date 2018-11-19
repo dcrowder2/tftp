@@ -3,11 +3,13 @@
 # University of Alaska Anchorage
 # Trivial File Transport Protocol
 from socket import SOCK_DGRAM, AF_INET, socket
+import socket
 import argparse
 from packet import Packet
 from file_reader import FileReader
 import random
 from window import Window
+from bitstring import BitArray
 
 
 class Net:
@@ -16,7 +18,7 @@ class Net:
 		self.parser = argparse.ArgumentParser(
 			description='An implementation of TFTP following RFC1350, by Dakota Crowder.')
 		self.parser.add_argument('-p', metavar='port number', type=int, help='The port for the server')
-		self.sock = socket(AF_INET, SOCK_DGRAM)
+		self.sock = socket.socket(AF_INET, SOCK_DGRAM)
 		# start with a random sequence number, in the range of 32 bits
 		self.seq_number = random.randint(0, 4294967295)
 		# this is not correct, it needs to be updated when a connection is made, but needs to be defined here,
@@ -111,7 +113,7 @@ class Net:
 			except socket.timeout as e:
 				print("Receiving ack timeout, resending...")
 				window.send(sock_to_send, d_address, d_port)
-		sock_to_send.settimeout(.5)
+		sock_to_send.settimeout(2)
 		final_packet_received = False
 		while not final_packet_received:
 			try:
@@ -145,7 +147,7 @@ class Net:
 			packets = []
 			# Receiving the full window
 			for i in range(win_size):
-				sock.settimeout(.5)
+				sock.settimeout(2)
 				try:
 					print("Getting packet " + str(len(packets)) + " from the sender")
 					receive_packet, address = sock.recvfrom(1472)
@@ -166,24 +168,25 @@ class Net:
 						if data[0] == "Data":
 							if data[2] == ack:
 								print("Proper data packet received, writing data..." + str(data[2]))
-								write_data = data[3]
+								write_data = data[3].tobytes()
 								write_file.write(write_data)
-								ack = Net.up_ack(ack, data[2])
+								ack = Net.up_ack(ack, (len(BitArray(packet)) - 20))
+								print("New ack :" + str(ack))
 							else:
 								print("Improper sequence number received, dumping improper packets" + str(data[2]))
 								packets.clear()
 						elif data[0] == "Fin":
 							if data[2] == ack:
 								print("Final packet received, writing, acking, then closing connection")
-								write_file.write(data[3])
-								ack = Net.up_ack(ack, data[2])
+								write_file.write(data[3].tobytes())
+								ack = Net.up_ack(ack, (len(BitArray(packet)) - 20))
 
 					else:
 						print("Error detected, creating error packet, dumping packets")
 						send_packet = Packet.error(0, d_port, self.port, self.seq_number, ack_num=ack, in_message="Checksum error")
 						error_flag = True
 						packets.clear()
-						self.up_sequence_number(len(send_packet))
+						self.up_sequence_number(len(send_packet.binary_combine()))
 				if not error_flag:
 					send_packet = Packet.ack(self.seq_number, ack, d_port, self.port, win_size)
 				else:
@@ -207,4 +210,5 @@ class Net:
 			new_ack = (ack + addend) - 4294967295
 		else:
 			new_ack += addend
+			print(new_ack, addend)
 		return new_ack

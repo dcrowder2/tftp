@@ -33,7 +33,7 @@ class Packet:
 
 	@staticmethod
 	def data(sequence_number, data_line, s_port, d_port, ack_num=0, fin=False):
-		new_packet = Datack(3, sequence_number, ack_num, d_port, s_port, data_line, fin=fin)
+		new_packet = Datack(3, sequence_number, ack_num, d_port, s_port, data=data_line, fin=fin)
 		new_packet.calc_checksum()
 		# Data packets are to be corrupted with a 5% probability, so we need to roll the die
 		Packet.corrupt(new_packet)
@@ -47,7 +47,9 @@ class Packet:
 
 	@staticmethod
 	def ack(sequence_number, ack_number, d_port, s_port, win_size, syn=False):
-		return Datack(4, sequence_number, ack_number, d_port, s_port, win_size=win_size, syn=syn)
+		new_packet = Datack(4, sequence_number, ack_number, d_port, s_port, win_size=win_size, syn=syn)
+		new_packet.calc_checksum()
+		return new_packet
 
 	@staticmethod
 	def kill():
@@ -140,8 +142,8 @@ class Packet:
 			# checking for error
 			if data[:7].uint == 0 and data[7:16].uint == 511:
 					return_array.insert(0, 'Err')
-					return_array.append(data[16].uint)
-					return_array.append(data[17:].bytes.decode('utf-8'))
+					return_array.append(data[16])
+					return_array.append(data[17:].tobytes().decode('utf-8'))
 					return_array.append(acknowledge_number)
 			else:
 				return_array.insert(0, 'Fin')

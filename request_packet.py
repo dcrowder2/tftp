@@ -11,9 +11,9 @@ class Request(Header):
 	def __init__(self, code, filename, seq_num, s_port, d_port):
 
 		if code == 1:
-			Header.__init__(self, seq_num, s_port, d_port, 0)
+			Header.__init__(self, seq_num, s_port, d_port, 0, syn=True)
 		else:
-			Header.__init__(self, seq_num, s_port, d_port, 0, write=True)
+			Header.__init__(self, seq_num, s_port, d_port, 0, write=True, syn=True)
 
 		self.data = bitstring.Bits(filename.encode('utf-8'))
 

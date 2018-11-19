@@ -5,6 +5,7 @@
 from net import Net
 from packet import Packet
 from os import path
+import socket
 
 
 class Client(Net):
@@ -37,31 +38,36 @@ class Client(Net):
 		# Creating connection to server
 		# source port is 0 since the connection has been made yet
 		print("Initiating connection")
-		self.sock.sendto(Packet.request(args.f, args.w, 0, args.p, self.seq_number).binary_combine(), server_connection)
-		syn_ack, address = self.sock.recvfrom(1472)
-		read_syn = Packet.read_packet(syn_ack)
+		self.sock.sendto(Packet.request(args.f, args.w, args.p, 0, self.seq_number).binary_combine(), server_connection)
+		self.sock.settimeout(2)
+		try:
+			syn_ack, address = self.sock.recvfrom(1472)
+			read_syn = Packet.read_packet(syn_ack)
 
-		if read_syn[1]:
-			if read_syn[0] == "Ack Syn":
-				print("Proper ack received, send ack back, then data/waiting for data")
-				self.port = read_syn[3]
-				window_size = read_syn[5]
-				ack = read_syn[2] + len(syn_ack)
+			if read_syn[1]:
+				if read_syn[0] == "Ack Syn":
+					print("Proper ack received, send ack back, then data/waiting for data")
+					self.port = read_syn[3]
+					window_size = read_syn[5]
+					ack = read_syn[2] + len(syn_ack)
 
-				self.sock.sendto(Packet.ack(self.seq_number, ack, args.p, self.port, window_size, syn=True).binary_combine(),
-				                 server_connection)
+					self.sock.sendto(Packet.ack(self.seq_number, ack, args.p, self.port, window_size, syn=True).binary_combine(),
+									 server_connection)
 
-				if args.w:
-					self.send_data(args.f, window_size, args.a, args.p, self.sock)
+					if args.w:
+						self.send_data(args.f, window_size, args.a, args.p, self.sock)
+					else:
+						self.receive_data(args.f, self.sock, args.p, window_size, ack, args.a)
 				else:
-					self.receive_data(args.f, self.sock, args.p, window_size, ack, args.a)
+					print("Improper ack received, please try connection again")
+					self.sock.close()
+					exit(0)
 			else:
-				print("Improper ack received, please try connection again")
+				print("Error in the checksum for ack syn, please try connection again")
 				self.sock.close()
 				exit(0)
-		else:
-			print("Error in the checksum for ack syn, please try connection again")
-			self.sock.close()
+		except socket.timeout:
+			print("Connection time out, connection not established")
 			exit(0)
 
 
