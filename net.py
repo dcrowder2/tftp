@@ -106,7 +106,7 @@ class Net:
 						window.send(sock_to_send, d_address, d_port)
 				else:
 					error_packet = Packet.error(0, d_port, self.port, self.seq_number, in_message="Checksum error")
-					sock_to_send.sendto(error_packet)
+					sock_to_send.sendto(error_packet, d_address)
 					self.up_sequence_number(len(error_packet))
 			except socket.timeout as e:
 				print("Receiving ack timeout, resending...")
@@ -188,7 +188,7 @@ class Net:
 					send_packet = Packet.ack(self.seq_number, ack, d_port, self.port, win_size)
 				else:
 					print("Sending ack packet " + str(ack))
-					sock.send(send_packet, d_address, d_port)
+					sock.sendto(send_packet, (d_address, d_port))
 			else:
 				print("No packets received, closing connection")
 				sock.close()

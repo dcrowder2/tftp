@@ -4,6 +4,7 @@
 # Trivial File Transport Protocol
 from bitstring import BitArray
 
+
 # This is an object that will act as a window for Go back N
 class Window:
 
