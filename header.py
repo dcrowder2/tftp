@@ -108,7 +108,7 @@ class Header:
 		return complete
 
 	def binary_combine(self):
-		return Header.combine().bin
+		return Header.combine(self).tobytes()
 
 	# To be overridden for any packet that has data (data, read, write, error)
 	# This uses the calculation described in RFC 793, which is the one's complement of the sum of the one's

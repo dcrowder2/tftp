@@ -148,7 +148,7 @@ class Net:
 				sock.settimeout(.5)
 				try:
 					print("Getting packet " + str(len(packets)) + " from the sender")
-					receive_packet = sock.recv(1472)
+					receive_packet, address = sock.recvfrom(1472)
 					packets.append(receive_packet)
 
 				except socket.timeout as e:

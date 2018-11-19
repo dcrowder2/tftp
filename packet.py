@@ -104,10 +104,10 @@ class Packet:
 		sequence_number = bit_packet[32:64].uint
 		acknowledge_number = bit_packet[64:96].uint
 		data_offset = bit_packet[96:100].uint
-		write_flag = bit_packet[106].bool
-		ack_flag = bit_packet[107].bool
-		syn_flag = bit_packet[110].bool
-		fin_flag = bit_packet[111].bool
+		write_flag = bit_packet[106]
+		ack_flag = bit_packet[107]
+		syn_flag = bit_packet[110]
+		fin_flag = bit_packet[111]
 		window_size = bit_packet[112:128].uint
 		checksum = bit_packet[128:144]
 		valid_checksum = Packet.check_checksum(checksum, bit_packet)

@@ -26,7 +26,7 @@ class Server(Net):
 
 		print("Server IP: " + str(self.sock.getsockname()) + "\nPort number: " + str(args.p) + "\nWaiting for connection")
 		while True:
-			message, address = self.sock.recv(516)
+			message, address = self.sock.recvfrom(1472)
 			decoded_message = Packet.read_packet(message)
 			# Kill packet received
 			if decoded_message[0] == 'end':
