@@ -14,15 +14,11 @@ class Window:
 		self.window = []
 
 	def add_packets(self, packets):
-		if len(self.window) == self.size - len(packets):
-			print("Adding " + str(len(packets)) + " to the window")
-			for packet in packets:
-				print("Adding packet " + str(packet.sequence_number) + " to the window")
-				self.window.append(packet)
-			print("Adding to window finished")
-			return True
-		else:
-			return False
+		print("Adding " + str(len(packets)) + " to the window")
+		for packet in packets:
+			print("Adding packet " + str(packet.sequence_number) + " to the window")
+			self.window.append(packet)
+		print("Adding to window finished")
 
 	def get_packet_space(self):
 		return self.size - len(self.window)
@@ -30,13 +26,16 @@ class Window:
 	# this will remove all the packets up to the last_sequence_number which will be the ack number received back
 	# after sending a packet, so it does go back N without any extra computation, since the packets that weren't
 	# acked will be kept in the window
-	def remove_packets(self, ack_number):
+	def remove_packets(self, ack_number, error=False):
 		if self.window:
-			i = 0
+			if error:
+				i = 0
+			else:
+				i = 1
 			last_sequence_number = ack_number - (len(self.window[-1].data) // 8)
 
 			for packet in self.window:
-				if packet.sequence_number.uint <= last_sequence_number:
+				if packet.sequence_number.uint < last_sequence_number:
 					i += 1
 
 			if i <= len(self.window):

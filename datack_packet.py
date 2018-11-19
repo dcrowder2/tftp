@@ -10,7 +10,6 @@ import bitstring
 class Datack(Header):
 
 	def __init__(self, in_code, seq_number, ack_number, d_port, s_port, win_size=0, data=b'', fin=False, syn=False):
-
 		if in_code == 4:  # ack packet
 			Header.__init__(self, seq_number, s_port, d_port, ack_number, ack=True, win_size=win_size, syn=syn)
 			self.data = data

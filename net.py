@@ -25,6 +25,9 @@ class Net:
 		# so it can be used in send_data
 		self.port = 0
 
+	def re_sock(self):
+		self.sock = socket.socket(AF_INET, SOCK_DGRAM)
+
 	def send_data(self, filename, win_size, d_address, d_port, sock_to_send):
 		file_reader = FileReader(filename)
 		# Pre-load file chunks with enough to fill the window at first
@@ -63,7 +66,10 @@ class Net:
 						if file_chunks[-1] == b'':
 							file_chunks = list(filter(None, file_chunks))
 							# after removing all the empty chunks, add one more blank if the last packet is exactly 1452
-							if len(file_chunks[-1]) == 1452:
+							if file_chunks:
+								if len(file_chunks[-1]) == 1452:
+									file_chunks.append(b'')
+							else:
 								file_chunks.append(b'')
 
 						packets = []
@@ -74,6 +80,8 @@ class Net:
 								self.up_sequence_number(len(chunk))
 							else:
 								packets.append(Packet.data(self.seq_number, chunk, self.port, d_port, fin=True))
+								print("final packet created")
+								print(packets[-1].sequence_number)
 								done = True
 
 						window.add_packets(packets)
@@ -84,7 +92,7 @@ class Net:
 						print("Error returned: " + str(ack_packet[2]) + " " + str(ack_packet[3]))
 						print("Fixing checksums, moving acked packets out of window, and resending...")
 						window.re_checksum()
-						window.remove_packets(ack_packet[4])
+						window.remove_packets(ack_packet[4], error=True)
 						if window.get_packet_space() > 0:
 							file_chunks = file_reader.get_chunk(window.get_packet_space())
 							# removing empty chunks if they are present
@@ -183,6 +191,7 @@ class Net:
 								print("Final packet received, writing, acking, then closing connection")
 								write_file.write(data[3].tobytes())
 								ack = Net.up_ack(ack, len(BitArray(packet)))
+								last_packet = True
 
 					else:
 						print("Error detected, creating error packet, dumping packets")

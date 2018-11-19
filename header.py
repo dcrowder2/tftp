@@ -22,7 +22,8 @@ class Header:
 		+-------+-----+-+-+-+-+-+-+-+-+-+-------------------------------+
 		|  Data |           |U|A|P|R|S|F|                               |
 		| Offset|  Reserved |R|C|S|S|Y|I|          Window Size          |96-127
-		|       |           |G|K|H|T|N|N|                               |
+		|6 7 8 9|0 1 2 3 4 5|G|K|H|T|N|N|                               |
+							 6 7 8 9 0 1
 		+-------+-----+-+-+-+-+-+-+-+-+-+-------------------------------+
 		|           Checksum            |  Urgent Pointer (if URG set)  |128-159
 		+-------------------------------+-------------------------------+
@@ -76,7 +77,6 @@ class Header:
 		self.reset_flag = bitstring.Bits(bin(0))
 
 		self.synchronize_flag = bitstring.Bits(bin(syn))
-
 		self.final_flag = bitstring.Bits(bin(fin))
 		# Same as source_port
 		if len_win < 16:

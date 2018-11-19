@@ -139,16 +139,19 @@ class Packet:
 			return_array.append(acknowledge_number)
 
 		elif fin_flag:
+			print("Fin Flag detected")
 			# checking for error
-			if data[:7].uint == 0 and data[7:16].uint == 511:
+			if len(data) > 0:
+				if data[:7].uint == 0 and data[7:16].uint == 511:
 					return_array.insert(0, 'Err')
 					return_array.append(data[16])
 					return_array.append(data[17:].tobytes().decode('utf-8'))
 					return_array.append(acknowledge_number)
-			else:
-				return_array.insert(0, 'Fin')
-				return_array.append(sequence_number)
-				return_array.append(data)
+					return return_array
+			print("Proper fin, writing as fin")
+			return_array.insert(0, 'Fin')
+			return_array.append(sequence_number)
+			return_array.append(data)
 		# data packet
 		else:
 			return_array.insert(0, 'Data')

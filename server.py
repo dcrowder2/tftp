@@ -22,6 +22,7 @@ class Server(Net):
 		self.win_size = random.randint(4, 9)
 
 		while True:
+			self.re_sock()
 			self.sock.bind(('', args.p))
 			print("Server IP: " + str(self.sock.getsockname()) + "\nPort number: " + str(
 				args.p) + "\nWaiting for connection")
