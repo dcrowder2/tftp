@@ -39,8 +39,8 @@ class Packet:
 		return new_packet
 
 	@staticmethod
-	def error(error_code, d_port, s_port, seq_num, in_message=''):
-		new_packet = Error(error_code, d_port, s_port, seq_num, in_message)
+	def error(error_code, d_port, s_port, seq_num, ack_num=0, in_message=''):
+		new_packet = Error(error_code, d_port, s_port, seq_num, ack_num, in_message)
 		new_packet.calc_checksum()
 		return new_packet
 
@@ -140,6 +140,7 @@ class Packet:
 					return_array.insert(0, 'Err')
 					return_array.append(data[16].uint)
 					return_array.append(data[17:].bytes.decode('utf-8'))
+					return_array.append(acknowledge_number)
 			else:
 				return_array.insert(0, 'Fin')
 				return_array.append(sequence_number)
