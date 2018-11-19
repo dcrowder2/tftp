@@ -2,7 +2,7 @@
 # CSCE A365 Computer Networks
 # University of Alaska Anchorage
 # Trivial File Transport Protocol
-
+from bitstring import BitArray
 
 # This is an object that will act as a window for Go back N
 class Window:
@@ -46,6 +46,11 @@ class Window:
 				return False
 		else:
 			return False
+
+	def re_checksum(self):
+		for packet in self.window:
+			packet.checksum = BitArray('0b0000000000000000')
+			packet.calc_checksum()
 
 	def send(self, sock, d_address, d_port):
 		for packet in self.window:
