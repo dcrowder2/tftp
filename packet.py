@@ -142,10 +142,12 @@ class Packet:
 					return_array.append(data[17:].bytes.decode('utf-8'))
 			else:
 				return_array.insert(0, 'Fin')
+				return_array.append(sequence_number)
 				return_array.append(data)
 		# data packet
 		else:
 			return_array.insert(0, 'Data')
+			return_array.append(sequence_number)
 			return_array.append(data)
 
 		return return_array
