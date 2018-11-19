@@ -8,9 +8,9 @@ import bitstring
 
 class Error(Header):
 
-	def __init__(self, err_code, d_port, s_port, seq_num, in_message=''):
+	def __init__(self, err_code, d_port, s_port, seq_num, ack_num=0, in_message=''):
 		# Since this is just for errors, only one op code is available
-		Header.__init__(self, seq_num, s_port, d_port, fin=True)
+		Header.__init__(self, seq_num, s_port, d_port, fin=True, ack_num=ack_num)
 		# Implementing the error message
 		# 0 Not defined, see error message (if any).
 		# 1 File not found.
