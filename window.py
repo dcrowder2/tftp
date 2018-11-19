@@ -30,15 +30,21 @@ class Window:
 	# this will remove all the packets up to the last_sequence_number which will be the ack number received back
 	# after sending a packet, so it does go back N without any extra computation, since the packets that weren't
 	# acked will be kept in the window
-	def remove_packets(self, last_sequence_number):
+	def remove_packets(self, ack_number, error=False):
 		if self.window:
-			i = 1
+			if error:
+				# if there is an error, keep the last packet
+				i = 0
+			else:
+				# if not get rid of it
+				i = 1
+			last_sequence_number = ack_number - (len(self.window[-1].data) // 8)
 
 			for packet in self.window:
-				if packet.sequence_number.uint != last_sequence_number:
+				if packet.sequence_number.uint <= last_sequence_number:
 					i += 1
 
-			if i < len(self.window):
+			if i <= len(self.window):
 				print("Removing " + str(i) + " packets from the window")
 				for j in range(i):
 					print("Removing packet " + str(self.window.pop(0).sequence_number))

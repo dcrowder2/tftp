@@ -21,11 +21,10 @@ class Server(Net):
 		self.port = args.p
 		self.win_size = random.randint(4, 9)
 
-		# bind the socket to the port
-		self.sock.bind(('', args.p))
-
-		print("Server IP: " + str(self.sock.getsockname()) + "\nPort number: " + str(args.p) + "\nWaiting for connection")
 		while True:
+			self.sock.bind(('', args.p))
+			print("Server IP: " + str(self.sock.getsockname()) + "\nPort number: " + str(
+				args.p) + "\nWaiting for connection")
 			self.sock.settimeout(None)
 			message, address = self.sock.recvfrom(1472)
 			decoded_message = Packet.read_packet(message)

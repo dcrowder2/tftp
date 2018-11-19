@@ -49,12 +49,12 @@ class Net:
 				print("Waiting for ack...")
 				message, address = sock_to_send.recvfrom(1472)
 				ack_packet = Packet.read_packet(message)
+				print("Packet received, checking...")
 				# checking valid checksum
 				if ack_packet[1]:
 					# adding packets into the window to be sent
-					if ack_packet[0] == 'ack':
+					if ack_packet[0] == 'Ack':
 						print("Ack received")
-
 						window.remove_packets(ack_packet[2])
 
 						file_chunks = file_reader.get_chunk(window.get_packet_space())
@@ -81,10 +81,10 @@ class Net:
 						window.send(sock_to_send, d_address, d_port)
 					# If the ack packet is instead an error packet, print error, dropped acked packets, then resend
 					elif ack_packet[0] == 'Err':
-						print("Error returned: " + ack_packet[2] + " " + ack_packet[3])
+						print("Error returned: " + str(ack_packet[2]) + " " + str(ack_packet[3]))
 						print("Fixing checksums, moving acked packets out of window, and resending...")
 						window.re_checksum()
-						window.remove_packets(ack_packet[4])
+						window.remove_packets(ack_packet[4], error=True)
 						if window.get_packet_space() > 0:
 							file_chunks = file_reader.get_chunk(window.get_packet_space())
 							# removing empty chunks if they are present
@@ -113,6 +113,7 @@ class Net:
 			except socket.timeout as e:
 				print("Receiving ack timeout, resending...")
 				window.send(sock_to_send, d_address, d_port)
+	
 		sock_to_send.settimeout(2)
 		final_packet_received = False
 		while not final_packet_received:
@@ -138,11 +139,10 @@ class Net:
 		last_packet = False
 		MAX_RETRIES = 5
 
-		error_flag = False
-
 		ack = start_ack
 
 		while not last_packet:
+			error_flag = False
 			retries = 0
 			packets = []
 			# Receiving the full window
@@ -170,7 +170,7 @@ class Net:
 								print("Proper data packet received, writing data..." + str(data[2]))
 								write_data = data[3].tobytes()
 								write_file.write(write_data)
-								ack = Net.up_ack(ack, (len(BitArray(packet)) - 20))
+								ack = Net.up_ack(ack, len(BitArray(packet)))
 								print("New ack :" + str(ack))
 							else:
 								print("Improper sequence number received, dumping improper packets" + str(data[2]))
@@ -179,7 +179,7 @@ class Net:
 							if data[2] == ack:
 								print("Final packet received, writing, acking, then closing connection")
 								write_file.write(data[3].tobytes())
-								ack = Net.up_ack(ack, (len(BitArray(packet)) - 20))
+								ack = Net.up_ack(ack, len(BitArray(packet)))
 
 					else:
 						print("Error detected, creating error packet, dumping packets")
@@ -189,9 +189,9 @@ class Net:
 						self.up_sequence_number(len(send_packet.binary_combine()))
 				if not error_flag:
 					send_packet = Packet.ack(self.seq_number, ack, d_port, self.port, win_size)
-				else:
-					print("Sending ack packet " + str(ack))
-					sock.sendto(send_packet.binary_combine(), (d_address, d_port))
+
+				print("Sending ack packet " + str(ack))
+				sock.sendto(send_packet.binary_combine(), (d_address, d_port))
 			else:
 				print("No packets received, closing connection")
 				sock.close()
@@ -206,9 +206,9 @@ class Net:
 	@staticmethod
 	def up_ack(ack, addend):
 		new_ack = ack
-		if ack + addend >= 4294967295:
-			new_ack = (ack + addend) - 4294967295
+		proper_addend = (addend // 8) - 20
+		if ack + proper_addend >= 4294967295:
+			new_ack = (ack + proper_addend) - 4294967295
 		else:
-			new_ack += addend
-			print(new_ack, addend)
+			new_ack += proper_addend
 		return new_ack
