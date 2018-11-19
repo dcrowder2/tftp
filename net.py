@@ -84,14 +84,17 @@ class Net:
 						print("Error returned: " + str(ack_packet[2]) + " " + str(ack_packet[3]))
 						print("Fixing checksums, moving acked packets out of window, and resending...")
 						window.re_checksum()
-						window.remove_packets(ack_packet[4], error=True)
+						window.remove_packets(ack_packet[4])
 						if window.get_packet_space() > 0:
 							file_chunks = file_reader.get_chunk(window.get_packet_space())
 							# removing empty chunks if they are present
 							if file_chunks[-1] == b'':
 								file_chunks = list(filter(None, file_chunks))
 								# after removing all the empty chunks, add one more blank if the last packet is exactly 1452
-								if len(file_chunks[-1]) == 1452:
+								if file_chunks:
+									if len(file_chunks[-1]) == 1452:
+										file_chunks.append(b'')
+								else:
 									file_chunks.append(b'')
 
 							packets = []
