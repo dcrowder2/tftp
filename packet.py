@@ -28,7 +28,7 @@ class Packet:
 		# after initialization checksum needs to be calculated
 		new_packet.calc_checksum()
 		# and we return the bitarray for the packet
-		return new_packet.combine()
+		return new_packet
 
 	@staticmethod
 	def data(sequence_number, data_line, s_port, d_port, ack_num=0, fin=False):
@@ -36,13 +36,13 @@ class Packet:
 		new_packet.calc_checksum()
 		# Data packets are to be corrupted with a 5% probability, so we need to roll the die
 		Packet.corrupt(new_packet)
-		return new_packet.combine()
+		return new_packet
 
 	@staticmethod
 	def error(error_code, d_port, s_port, seq_num, in_message=''):
 		new_packet = Error(error_code, d_port, s_port, seq_num, in_message)
 		new_packet.calc_checksum()
-		return new_packet.combine()
+		return new_packet
 
 	@staticmethod
 	def ack(sequence_number, ack_number, d_port, s_port, win_size, syn=False):
@@ -109,12 +109,8 @@ class Packet:
 		window_size = bit_packet[112:128].uint
 		checksum = bit_packet[128:144]
 		valid_checksum = Packet.check_checksum(checksum, bit_packet)
-		# the first thing, after the name of the packet, will be if the checksum is valid
+
 		return_array.append(valid_checksum)
-		# every packet read needs to return these three
-		return_array.append(source_port)
-		return_array.append(dest_port)
-		return_array.append(sequence_number)
 
 		if data_offset == 5:
 			data = bit_packet[160:]
@@ -124,10 +120,13 @@ class Packet:
 		if syn_flag:
 			if ack_flag:
 				return_array.insert(0, 'Ack Syn')
+				return_array.append(source_port)
+				return_array.append(dest_port)
 				return_array.append(acknowledge_number)
 				return_array.append(window_size)
 			else:
 				return_array.insert(0, 'Syn')
+				return_array.append(sequence_number)
 				return_array.append(write_flag)
 				return_array.append(data.bytes.decode('utf-8'))
 

@@ -13,6 +13,6 @@ class FileReader:
 		chunk_list = []
 		for i in range(num_chunk):
 			# Since the packet header will always be 20 bytes, the mtu is 1500 so 1480 bytes per read
-			chunk = self.file.read(1480)
+			chunk = self.file.read(1452)
 			chunk_list.append(chunk)
 		return chunk_list
