@@ -18,7 +18,7 @@ class Server(Net):
 		# parse the arguments
 		args = self.parser.parse_args()
 
-		self.port = args.p()
+		self.port = args.p
 		self.win_size = random.randint(4, 9)
 
 		# bind the socket to the port
@@ -40,8 +40,8 @@ class Server(Net):
 					ack = decoded_message[2]
 					write_flag = decoded_message[3]
 					filename = decoded_message[4]
-					self.sock.sendto(Packet.ack(self.seq_number, ack, address[1], self.port, self.win_size, syn=True),
-																												address)
+					self.sock.sendto(Packet.ack(self.seq_number, ack, address[1], self.port, self.win_size,
+					                            syn=True).binary_combine(), address)
 					self.sock.settimeout(.5)
 					try:
 						message, address = self.sock.recvfrom(1472)
@@ -57,7 +57,7 @@ class Server(Net):
 										print("Trying to send a file that already exists, sending error, closing "
 												"connection")
 										return_packet = Packet.error(6, address[1], self.port, self.seq_number)
-										self.sock.sendto(return_packet, address)
+										self.sock.sendto(return_packet.binary_combine(), address)
 									else:
 										print("Ready to receive data...")
 										Net.receive_data(self, "new" + filename, self.sock, address[1], self.win_size,
@@ -73,7 +73,7 @@ class Server(Net):
 										print("trying to send a file that doesn't exist, sending error, closing "
 												"connection")
 										send_packet = Packet.error(1, address[1], self.port, self.seq_number)
-										self.sock.sendto(send_packet, address)
+										self.sock.sendto(send_packet.binary_combine(), address)
 									else:
 										print("Sending data...")
 										Net.send_data(self, pathname, self.win_size, address[0], address[1], self.sock)

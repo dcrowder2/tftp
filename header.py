@@ -107,6 +107,9 @@ class Header:
 		complete.append(self.urgent_pointer)
 		return complete
 
+	def binary_combine(self):
+		return Header.combine().bin
+
 	# To be overridden for any packet that has data (data, read, write, error)
 	# This uses the calculation described in RFC 793, which is the one's complement of the sum of the one's
 	# compliments of the 16 bit words in the packet, which is just splitting the packet up into 16 bit sections

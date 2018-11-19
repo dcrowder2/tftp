@@ -56,4 +56,4 @@ class Window:
 	def send(self, sock, d_address, d_port):
 		for packet in self.window:
 			print("Sending packet " + str(packet.sequence_number))
-			sock.sendto(packet.combine(), (d_address, d_port))
+			sock.sendto(packet.binary_combine(), (d_address, d_port))

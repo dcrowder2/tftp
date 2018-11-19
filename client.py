@@ -37,7 +37,7 @@ class Client(Net):
 		# Creating connection to server
 		# source port is 0 since the connection has been made yet
 		print("Initiating connection")
-		self.sock.sendto(Packet.request(args.f, args.w, 0, args.p, self.seq_number), server_connection)
+		self.sock.sendto(Packet.request(args.f, args.w, 0, args.p, self.seq_number).binary_combine(), server_connection)
 		syn_ack, address = self.sock.recvfrom(1472)
 		read_syn = Packet.read_packet(syn_ack)
 
@@ -48,7 +48,8 @@ class Client(Net):
 				window_size = read_syn[5]
 				ack = read_syn[2] + len(syn_ack)
 
-				self.sock.sendto(Packet.ack(self.seq_number, ack, args.p, self.port, window_size, syn=True), server_connection)
+				self.sock.sendto(Packet.ack(self.seq_number, ack, args.p, self.port, window_size, syn=True).binary_combine(),
+				                 server_connection)
 
 				if args.w:
 					self.send_data(args.f, window_size, args.a, args.p, self.sock)
