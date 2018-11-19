@@ -23,38 +23,45 @@ class Client(Net):
 		# parse the arguments
 		args = self.parser.parse_args()
 
+		server_connection = (args.a, args.p)
+
 		# if you want to kill, open connection, and send kill
 		if args.k:
-			self.sock.connect((args.a, args.p))
-			self.sock.send(Packet.kill())
+			self.sock.sendto(Packet.kill(), server_connection)
 			exit(0)
 
 		if not path.exists(args.f):
 			print("File not found, please enter a valid filename")
 			exit(0)
 
-		# Connect to the server
-		self.sock.connect((args.a, args.p))
+		# Creating connection to server
+		# source port is 0 since the connection has been made yet
+		print("Initiating connection")
+		self.sock.sendto(Packet.request(args.f, args.w, 0, args.p, self.seq_number), server_connection)
+		syn_ack, address = self.sock.recvfrom(1472)
+		read_syn = Packet.read_packet(syn_ack)
 
-		# Writing a file
-		if args.w:
-			self.sock.send(Packet.request(args.f, 'netascii', True))
-			receive = self.sock.recv(516)
-			ack = Packet.read_packet(receive)
-			# Check for the correct ack for the request, if not terminate the connection via an empty data packet
-			if ack[0] == 0:
-				Net.send_data(self, args.f, self.sock)
+		if read_syn[1]:
+			if read_syn[0] == "Ack Syn":
+				print("Proper ack received, send ack back, then data/waiting for data")
+				self.port = read_syn[3]
+				window_size = read_syn[5]
+				ack = read_syn[2] + len(syn_ack)
+
+				self.sock.sendto(Packet.ack(self.seq_number, ack, args.p, self.port, window_size, syn=True), server_connection)
+
+				if args.w:
+					self.send_data(args.f, window_size, args.a, args.p, self.sock)
+				else:
+					self.receive_data(args.f, self.sock, args.p, window_size, ack, args.a)
 			else:
-				self.sock.close(Packet.data(0, b''))
+				print("Improper ack received, please try connection again")
+				self.sock.close()
+				exit(0)
 		else:
-			self.sock.send(Packet.request(args.f, 'netascii', False))
-			ack = Packet.read_packet(self.sock.recv(516))
-			# check for the correct ack for the request, if not terminate the connection via an empty data packet
-			if ack[0] == 0:
-				Net.receive_data(self, args.f, self.sock)
-			else:
-				self.sock.send(Packet.data(0, b''))
-		self.sock.close()
+			print("Error in the checksum for ack syn, please try connection again")
+			self.sock.close()
+			exit(0)
 
 
 if __name__ == '__main__':
